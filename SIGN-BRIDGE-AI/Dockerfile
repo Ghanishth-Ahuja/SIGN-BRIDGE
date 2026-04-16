@@ -42,7 +42,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir mediapipe==0.10.11 --no-deps && \
     pip install --no-cache-dir \
         absl-py attrs flatbuffers fonttools imageio kiwisolver \
-        matplotlib packaging pillow pyparsing python-dateutil six && \
+        matplotlib packaging pillow pyparsing python-dateutil six \
+        sounddevice soundfile audioread cffi && \
     pip cache purge && \
     rm -rf /root/.cache/pip/*
 
@@ -56,7 +57,7 @@ COPY users.json .
 RUN mkdir -p uploads
 
 # Health check using built-in socket (no extra deps)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=5 \
     CMD python -c "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost',5000)); s.close()" || exit 1
 
 EXPOSE 5000

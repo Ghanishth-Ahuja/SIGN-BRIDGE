@@ -3,6 +3,7 @@
 
 # --- Core Web & Auth ---
 Flask==3.0.3
+flask-socketio==5.3.6
 flask-cors==4.0.0
 flask-jwt-extended==4.6.0
 Werkzeug==3.0.3
