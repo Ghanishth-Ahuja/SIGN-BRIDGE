@@ -12,20 +12,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Install system dependencies for OpenCV, MediaPipe, and TensorFlow
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
-    libxrender-dev \
+    libxrender1 \
     libgomp1 \
     libfontconfig1 \
     libice6 \
-    libsm6 \
     libx11-6 \
-    libxext6 \
-    libxrender1 \
     libharfbuzz0b \
     libfreetype6 \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
