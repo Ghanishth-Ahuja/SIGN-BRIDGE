@@ -43,12 +43,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY main.py .
 COPY src/ ./src/
 COPY models/ ./models/
+COPY users.json .
 
 # Create directories for runtime data
 RUN mkdir -p uploads
-
-# Copy initial users.json if it exists (will be overridden by volume in production)
-COPY users.json . 2>/dev/null || echo "users.json will be created at runtime"
 
 # Create non-root user for security (optional - Railway runs as root)
 # RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
