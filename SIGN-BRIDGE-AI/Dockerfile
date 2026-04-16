@@ -1,11 +1,7 @@
-# SignBridge AI - Ultra-Minimal Production Dockerfile
-# =====================================================
-# Goal: Keep image under 4GB for Railway free tier
-# Strategy: 
-#   - Single stage (multi-stage wasn't saving much with mediapipe)
-#   - Minimal system deps
-#   - NO dev packages in final image
-#   - MediaPipe installed without torch/opencv-contrib
+# SignBridge AI - Production Dockerfile for Fly.io
+# =================================================
+# Optimized for Fly.io deployment
+# Full TensorFlow included for TFLite model compatibility
 
 FROM python:3.11-slim
 
@@ -33,17 +29,10 @@ WORKDIR /app
 # Copy requirements first for layer caching
 COPY requirements.prod.txt .
 
-# Install Python packages in ONE layer to minimize size
-# 1. Core dependencies first (small ones)
-# 2. MediaPipe WITHOUT its default heavy deps (no torch!)
-# 3. Immediately clean up pip cache
+# Install Python packages
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r requirements.prod.txt && \
-    pip install --no-cache-dir mediapipe==0.10.11 --no-deps && \
-    pip install --no-cache-dir \
-        absl-py attrs flatbuffers fonttools imageio kiwisolver \
-        matplotlib packaging pillow pyparsing python-dateutil six \
-        sounddevice soundfile audioread cffi && \
+    pip install --no-cache-dir mediapipe==0.10.11 && \
     pip cache purge && \
     rm -rf /root/.cache/pip/*
 
