@@ -172,16 +172,16 @@ export default function Login() {
             </motion.button>
           </form>
 
-          <div className="relative">
+          {/* <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-100"></div>
             </div>
             <div className="relative flex justify-center text-[0.6rem] uppercase tracking-widest">
               <span className="bg-[var(--bg-primary)] text-[var(--text-tertiary)] font-bold">Or continue with</span>
             </div>
-          </div>
+          </div> */}
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError('Google Login Failed')}
@@ -191,7 +191,7 @@ export default function Login() {
               text={isLogin ? "signin_with" : "signup_with"}
               width="440px"
             />
-          </div>
+          </div> */}
         </div>
 
         <footer className="text-center">

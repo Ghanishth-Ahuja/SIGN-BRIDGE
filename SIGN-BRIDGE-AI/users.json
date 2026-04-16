@@ -42,5 +42,12 @@
     "email": "newuser@gmail.com",
     "password": "$2b$10$ObSFb0KZaZ/1..TaOWbOgOt48N4nm0MOkwdozxirqzAJZMip.fGIa",
     "role": "user"
+  },
+  {
+    "id": 1776361004277,
+    "name": "Zeeshan",
+    "email": "zeeshan07@gmail.com",
+    "password": "$2b$10$ciiZZHsuy2v85Wo/qLqjtOI9oFO6E5DmFIw65stXAZdnR4502wNT2",
+    "role": "user"
   }
 ]
