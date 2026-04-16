@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from './constants';
 import { Users, Shield, Trash2, Activity, Server, Database, Search, RefreshCcw, MoreVertical } from 'lucide-react';
 
 export default function Admin() {
@@ -17,8 +18,8 @@ export default function Admin() {
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
       const [uRes, sRes] = await Promise.all([
-        fetch('http://127.0.0.1:5000/api/admin/users', { headers }),
-        fetch('http://127.0.0.1:5000/api/admin/stats', { headers })
+        fetch(`${API_BASE_URL}/api/admin/users`, { headers }),
+        fetch(`${API_BASE_URL}/api/admin/stats`, { headers })
       ]);
       
       const uData = await uRes.json();
@@ -41,7 +42,7 @@ export default function Admin() {
     if (!window.confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
     
     try {
-      const res = await fetch(`http://127.0.0.1:5000/api/admin/users/${userId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

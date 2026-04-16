@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from './constants';
 import { User, Mail, Shield, Save, LogOut, ChevronRight } from 'lucide-react';
 
 export default function Profile() {
@@ -15,7 +16,7 @@ export default function Profile() {
     setSuccess(false);
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/auth/update', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: user.id, ...formData })

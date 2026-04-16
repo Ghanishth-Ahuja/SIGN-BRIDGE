@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from './constants';
 import { ArrowRight, Lock, Mail, User } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -14,16 +15,13 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Dynamic API Base URL
-  const API_BASE = import.meta.env.VITE_SERVER_URL || `http://${window.location.hostname}:5000`;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-    const url = `${API_BASE}${endpoint}`;
+    const url = `${API_BASE_URL}${endpoint}`;
     
     console.log(`[Auth] Attempting ${isLogin ? 'Login' : 'Signup'} at: ${url}`);
     
@@ -54,7 +52,7 @@ export default function Login() {
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError('');
-    const url = `${API_BASE}/api/auth/google`;
+    const url = `${API_BASE_URL}/api/auth/google`;
     
     console.log('[Auth] Verifying Google token at:', url);
     
