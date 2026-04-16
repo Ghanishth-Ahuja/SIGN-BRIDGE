@@ -20,6 +20,7 @@ google-auth==2.29.0
 # --- ML Inference (TFLite only, NO TensorFlow) ---
 tflite-runtime==2.14.0
 numpy==1.26.4
+protobuf==4.25.3
 
 # --- Computer Vision ---
 # Note: mediapipe is installed separately in Dockerfile to control deps
