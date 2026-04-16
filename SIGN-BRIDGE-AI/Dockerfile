@@ -1,45 +1,23 @@
-# SignBridge AI - Production Dockerfile for Railway
-# ==================================================
-# Key optimizations:
-#   - Uses requirements.prod.txt (tflite-runtime vs full tensorflow = -2GB!)
-#   - opencv-python-headless (no GUI libs = -500MB!)
-#   - Multi-stage build (no build tools in final image)
-#   - Removed unused packages: PyAudio, pygame, matplotlib, etc.
-#
-# Estimated final size: ~1.5-2GB (down from 8.8GB)
+# SignBridge AI - Ultra-Minimal Production Dockerfile
+# =====================================================
+# Goal: Keep image under 4GB for Railway free tier
+# Strategy: 
+#   - Single stage (multi-stage wasn't saving much with mediapipe)
+#   - Minimal system deps
+#   - NO dev packages in final image
+#   - MediaPipe installed without torch/opencv-contrib
 
-# Stage 1: Builder - Compile Python packages
-FROM python:3.11-slim as builder
-
-# Install build dependencies (only for compiling Python packages)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    g++ \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Copy and install production requirements
-COPY requirements.prod.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir wheel && \
-    pip install --no-cache-dir -r requirements.prod.txt
-
-# Stage 2: Runtime - Minimal image with compiled packages
 FROM python:3.11-slim
 
-# Set environment variables
+# Prevent Python from writing pyc files and buffering stdout
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=5000 \
-    PYTHONFAULTHANDLER=1 \
-    PATH="/opt/venv/bin:$PATH" \
-    PYTHONPATH="/opt/venv/lib/python3.11/site-packages"
+    PYTHONFAULTHANDLER=1
 
-# Install ONLY runtime system dependencies (no -dev packages, no audio libs)
+# Install minimal runtime dependencies
+# libgl1 = OpenCV requirement
+# libgomp1 = OpenMP for numpy/medpiapipe
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
@@ -48,17 +26,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender1 \
     libgomp1 \
     libfontconfig1 \
-    libice6 \
-    libx11-6 \
-    libharfbuzz0b \
-    libfreetype6 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
-
-# Set working directory
 WORKDIR /app
+
+# Copy requirements first for layer caching
+COPY requirements.prod.txt .
+
+# Install Python packages in ONE layer to minimize size
+# 1. Core dependencies first (small ones)
+# 2. MediaPipe WITHOUT its default heavy deps (no torch!)
+# 3. Immediately clean up pip cache
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.prod.txt && \
+    pip install --no-cache-dir mediapipe==0.10.11 --no-deps && \
+    pip install --no-cache-dir \
+        absl-py attrs flatbuffers fonttools imageio kiwisolver \
+        matplotlib packaging pillow pyparsing python-dateutil six && \
+    pip cache purge && \
+    rm -rf /root/.cache/pip/*
 
 # Copy application code
 COPY main.py .
@@ -69,12 +55,11 @@ COPY users.json .
 # Create uploads directory
 RUN mkdir -p uploads
 
-# Expose port
-EXPOSE 5000
-
-# Health check (simplified - no requests library needed)
+# Health check using built-in socket (no extra deps)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 5000)); s.close()" 2>/dev/null || exit 1
+    CMD python -c "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost',5000)); s.close()" || exit 1
+
+EXPOSE 5000
 
 # Production command
 CMD exec gunicorn --worker-class eventlet \
@@ -82,8 +67,6 @@ CMD exec gunicorn --worker-class eventlet \
     --bind 0.0.0.0:$PORT \
     --timeout 120 \
     --keep-alive 5 \
-    --max-requests 1000 \
-    --max-requests-jitter 50 \
     --access-logfile - \
     --error-logfile - \
     "main:app"

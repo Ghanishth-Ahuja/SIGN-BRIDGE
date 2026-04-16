@@ -1,35 +1,33 @@
-# SignBridge AI - Production Requirements (Optimized for Railway)
-# ================================================================
-# This is a SLIMMED DOWN version for production deployment.
-# Key changes from requirements.txt:
-#   - tflite-runtime instead of tensorflow (50MB vs 2GB!)
-#   - opencv-python-headless instead of opencv-python (no GUI)
-#   - Removed: gTTS, pygame, scikit-learn, matplotlib, SpeechRecognition,
-#              moviepy, beautifulsoup4, pyttsx3, pysrt, pytube, PyAudio
-#
-# If you need full training capabilities, use requirements.txt locally.
+# Production requirements - MINIMAL
+# Only what's absolutely required for inference (not training)
 
-# --- Core ML (TFLite only, no full TensorFlow) ---
-tflite-runtime==2.14.0
-numpy==2.1.3
-mediapipe==0.10.11
-protobuf==3.20.3
-
-# --- Computer Vision (headless = no GUI libs) ---
-opencv-python-headless==4.13.0.92
-
-# --- Web Framework ---
-Flask==3.1.3
-Flask-SocketIO==5.5.0    # Socket.IO support (auto-installs compatible python-socketio)
-flask-cors==5.0.1
-flask-jwt-extended==4.7.1
-Werkzeug==3.1.3
-eventlet==0.35.2         # Async worker for gunicorn
+# --- Core Web & Auth ---
+Flask==3.0.3
+flask-cors==4.0.0
+flask-jwt-extended==4.6.0
+Werkzeug==3.0.3
+gunicorn==23.0.0
+eventlet==0.35.2
+python-socketio==5.11.0
+bidict==0.23.1
 
 # --- Authentication ---
-bcrypt==4.3.0
-PyJWT==2.10.1
-google-auth==2.38.0
+bcrypt==4.1.3
+PyJWT==2.8.0
+google-auth==2.29.0
 
-# --- Server ---
-gunicorn==23.0.0
+# --- ML Inference (TFLite only, NO TensorFlow) ---
+tflite-runtime==2.14.0
+numpy==1.26.4
+
+# --- Computer Vision ---
+# Note: mediapipe is installed separately in Dockerfile to control deps
+opencv-python-headless==4.9.0.80
+pillow==10.3.0
+
+# --- Utilities ---
+requests==2.31.0
+urllib3==2.2.1
+certifi==2024.2.2
+charset-normalizer==3.3.2
+idna==3.7
